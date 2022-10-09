@@ -1,2 +1,2 @@
-# ProjetS2
-Le repo pour notre projet de S2 à l'EPITA
+# [🇫🇷 Documentation en français 🇫🇷](https://github.com/reza0310/Steganographie/blob/main/README.fr.md)
+# [🇺🇸 English documentation 🇬🇧](https://github.com/reza0310/Steganographie/blob/main/README.en.md)
