@@ -19,6 +19,7 @@ public class Garde : MonoBehaviour
     public GameObject CORPS_GARDE;
     public float TEMPS_ATTENTE = .3f;
     public float VITESSE = 10;
+    public float VITESSE_ROTATION = 90;
     /**
      * \endcond
      */
@@ -37,19 +38,27 @@ public class Garde : MonoBehaviour
         {
             points[i] = CONTIENT_CHEMIN.GetChild(i).position;
         }
-        for (int i = nbre_enfants-2; i > 0; i--)
+        for (int i = 0; i < nbre_enfants - 2; i++)
         {
-            points[nbre_enfants+i] = CONTIENT_CHEMIN.GetChild(i).position;
+            points[nbre_enfants+i] = CONTIENT_CHEMIN.GetChild(nbre_enfants - 2 - i).position;
+        }
+
+        // Correction de la hauteur
+        for (int i = 0; i < points.Length; i++)
+        {
+            points[i] = new Vector3(points[i].x, transform.position.y, points[i].z);
         }
 
         // Mise en place du garde à son point de départ
         transform.position = points[0];
+        transform.LookAt(points[1]);
+
+        StartCoroutine(SuivreChemin(points));
     }
 
     /** \brief Fonction exécutée en permanence qui permet de suivre le chemin préchargé.
      * 
      * \param[in] points   Le chemin préchargé sous forme de liste de coordonnées tridimensionelles.
-     * \return IEnumerator   ???.
      * 
      */
     public IEnumerator SuivreChemin(Vector3[] points)
@@ -63,9 +72,29 @@ public class Garde : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, cible_actuelle, VITESSE * Time.deltaTime);
             if (transform.position == cible_actuelle)
             {
-                actuel = actuel + 1 % points.Length;
+                actuel = (actuel + 1) % points.Length;
                 cible_actuelle = points[actuel];
+                yield return new WaitForSeconds(TEMPS_ATTENTE);
+                yield return StartCoroutine(RegarderVers(cible_actuelle));
             }
+            yield return null;
+        }
+    }
+
+    /** \brief Fonction exécutée quand un garde arrive sur un point pour pointer vers le suivant.
+     * 
+     * \param[in] cible   La cible vers laquelle regarder.
+     * 
+     */
+    public IEnumerator RegarderVers(Vector3 cible)
+    {
+        Vector3 direction = (cible - transform.position).normalized;
+        float angle_cible = 90 - Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;
+        while (Mathf.Abs(Mathf.DeltaAngle(transform.eulerAngles.y, angle_cible)) > 0.05f)
+        {
+            float angle = Mathf.MoveTowardsAngle(transform.eulerAngles.y, angle_cible, VITESSE_ROTATION * Time.deltaTime);
+            transform.eulerAngles = Vector3.up * angle;
+            yield return null;
         }
     }
 
