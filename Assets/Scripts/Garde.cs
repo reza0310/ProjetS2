@@ -73,7 +73,7 @@ public class Garde : MonoBehaviour
      * \return vu   Le booléen disant si oui ou non le joueur est vu.
      * 
      */
-    bool voit_joueur()
+    public bool voit_joueur()
     {
         if (Vector3.Distance(transform.position, joueur.position) < DISTANCE_VUE)
         {
@@ -94,7 +94,7 @@ public class Garde : MonoBehaviour
      * 
      * 
      */
-    private void Update()
+    public void Update()
     {
         if (voit_joueur())
         {

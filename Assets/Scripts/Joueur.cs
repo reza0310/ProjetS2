@@ -29,18 +29,18 @@ public class Joueur : MonoBehaviour
      * \endcond
      */
 
-    /** \brief Fonction **prédéfinie** exécutée à la première frame pour initialiser le corps de collision avec les obstacles.
+    /** \brief Fonction **prÃ©dÃ©finie** exÃ©cutÃ©e Ã  la premiÃ¨re frame pour initialiser le corps de collision avec les obstacles.
      * 
      */
-    private void Start()
+    public void Start()
     {
         corps = GetComponent<Rigidbody>();
     }
 
-    /** \brief Fonction **prédéfinie** exécutée une fois par frame permettant de lire les entrées et de les lisser.
+    /** \brief Fonction **prÃ©dÃ©finie** exÃ©cutÃ©e une fois par frame permettant de lire les entrÃ©es et de les lisser.
      * 
      */
-    void Update()
+    public void Update()
     {
         Vector3 entree_direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
         float magnitude = entree_direction.magnitude;
@@ -52,10 +52,10 @@ public class Joueur : MonoBehaviour
         acceleration =  transform.forward * VITESSE * magnitude_lisse;
     }
 
-    /** \brief Fonction **prédéfinie** exécutée une fois par intervalle de temps fixe permettant d'appliquer les entrées lissées.
+    /** \brief Fonction **prÃ©dÃ©finie** exÃ©cutÃ©e une fois par intervalle de temps fixe permettant d'appliquer les entrÃ©es lissÃ©es.
      * 
      */
-    private void FixedUpdate()
+    public void FixedUpdate()
     {
         corps.MoveRotation(Quaternion.Euler(Vector3.up * angle));
         corps.MovePosition(corps.position + acceleration * Time.deltaTime);
