@@ -3,7 +3,7 @@
  * \brief Script des gardes du jeu
  * \author LabyStudio
  * \version 1.0
- * \date {creation: 09/10/2022, modification: 09/10/2022}
+ * \date {creation: 09/10/2022, modification: 16/10/2022}
 */
 
 using System.Collections;
@@ -20,6 +20,14 @@ public class Garde : MonoBehaviour
     public float TEMPS_ATTENTE = .3f;
     public float VITESSE = 10;
     public float VITESSE_ROTATION = 90;
+
+    public Light TORCHE;
+    public float DISTANCE_VUE;
+    public LayerMask MASQUE_VUE;
+
+    float angle_vue;
+    Transform joueur;
+    Color couleur_origine_torche;
     /**
      * \endcond
      */
@@ -32,6 +40,10 @@ public class Garde : MonoBehaviour
         // Initialisation des variables
         int nbre_enfants = CONTIENT_CHEMIN.childCount;
         Vector3[] points = new Vector3[nbre_enfants * 2 - 2];
+
+        angle_vue = TORCHE.spotAngle;
+        joueur = GameObject.FindGameObjectWithTag("Player").transform;  // Existe une version au pluriel
+        couleur_origine_torche = TORCHE.color;
 
         // Remplissage du chemin (aller retour)
         for (int i = 0; i < nbre_enfants; i++)
@@ -54,6 +66,44 @@ public class Garde : MonoBehaviour
         transform.LookAt(points[1]);
 
         StartCoroutine(SuivreChemin(points));
+    }
+
+    /** \brief Fonction disant si le garde voit le joueur.
+     * 
+     * \return vu   Le booléen disant si oui ou non le joueur est vu.
+     * 
+     */
+    bool voit_joueur()
+    {
+        if (Vector3.Distance(transform.position, joueur.position) < DISTANCE_VUE)
+        {
+            Vector3 direction_vers_joueur = (joueur.position - transform.position).normalized;
+            float angle_garde_joueur = Vector3.Angle(transform.forward, direction_vers_joueur);
+            if (angle_garde_joueur < angle_vue / 2f)
+            {
+                if (!Physics.Linecast(transform.position, joueur.position, MASQUE_VUE))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /** \brief Fonction **prédéfinie** exécutée une fois par frame permettant de checker si on voit le joueur.
+     * 
+     * 
+     */
+    private void Update()
+    {
+        if (voit_joueur())
+        {
+            TORCHE.color = Color.red;
+        }
+        else
+        {
+            TORCHE.color = couleur_origine_torche;
+        }
     }
 
     /** \brief Fonction exécutée en permanence qui permet de suivre le chemin préchargé.
@@ -98,7 +148,7 @@ public class Garde : MonoBehaviour
         }
     }
 
-    /** \brief Fonction **prédéfinie** permettant d'afficher dans l'éditeur le chemin du garde.
+    /** \brief Fonction **prédéfinie** permettant d'afficher dans l'éditeur seulement le chemin et le vue du garde.
      * 
      */
     public void OnDrawGizmos()
@@ -110,5 +160,8 @@ public class Garde : MonoBehaviour
             Gizmos.DrawLine(position_precedente, point.position);
             position_precedente = point.position;
         }
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(transform.position, transform.forward * DISTANCE_VUE);
     }
 }

@@ -62,3 +62,4 @@ crashlytics-build.properties
 .vs/
 .vsconfig
 Doxygen/html
+BUILDS/
