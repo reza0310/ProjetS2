@@ -4,5 +4,14 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Chargement.unity
+    guid: b2c2ea8d84c35c14d9537e78d95a72f6
+  - enabled: 1
+    path: Assets/Scenes/Lobby.unity
+    guid: b444cfb2e59b0134d9c9e15630da0db0
+  - enabled: 1
+    path: Assets/Scenes/Projet.unity
+    guid: 4df754798a4908540941ad4fa0a118d0
   m_configObjects: {}

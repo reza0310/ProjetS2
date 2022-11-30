@@ -3,12 +3,13 @@
  * \brief Script du joueur
  * \author LabyStudio
  * \version 1.0
- * \date {creation: 19/10/2022, modification: 19/10/2022}
+ * \date {creation: 19/10/2022, modification: 30/11/2022}
 */
 
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class Joueur : MonoBehaviour
 {
@@ -16,13 +17,7 @@ public class Joueur : MonoBehaviour
      * \cond
      */
     public float VITESSE = 7;
-    public float LISSEUR_MOUV = .1f;
     public float VITESSE_ROTATION = 8;
-
-    float angle;
-    float magnitude_lisse;
-    float acceleration_lisse;
-    Vector3 acceleration;
 
     Rigidbody corps;
     /**
@@ -37,27 +32,22 @@ public class Joueur : MonoBehaviour
         corps = GetComponent<Rigidbody>();
     }
 
-    /** \brief Fonction **prédéfinie** exécutée une fois par frame permettant de lire les entrées et de les lisser.
-     * 
-     */
+    /** \brief Fonction **prédéfinie** exécutée une fois par frame permettant de redresser les rotations sur les axes x et z.
+    * 
+    * 
+    */
     public void Update()
     {
-        Vector3 entree_direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
-        float magnitude = entree_direction.magnitude;
-        magnitude_lisse = Mathf.SmoothDamp(magnitude_lisse, magnitude, ref acceleration_lisse, LISSEUR_MOUV);
-
-        float angle_cible = Mathf.Atan2(entree_direction.x, entree_direction.z) * Mathf.Rad2Deg;
-        angle = Mathf.LerpAngle(angle, angle_cible, Time.deltaTime * VITESSE_ROTATION * magnitude);
-
-        acceleration =  transform.forward * VITESSE * magnitude_lisse;
+        transform.rotation = new Quaternion(0, transform.rotation.y, 0, transform.rotation.w);
     }
 
-    /** \brief Fonction **prédéfinie** exécutée une fois par intervalle de temps fixe permettant d'appliquer les entrées lissées.
+    /** \brief Fonction **prédéfinie** exécutée une fois par intervalle de temps fixe permettant d'appliquer les entrées.
      * 
      */
     public void FixedUpdate()
     {
-        corps.MoveRotation(Quaternion.Euler(Vector3.up * angle));
-        corps.MovePosition(corps.position + acceleration * Time.deltaTime);
+        transform.Rotate(transform.up * Input.GetAxis("Mouse X") * VITESSE_ROTATION * Time.deltaTime);
+        corps.velocity = transform.right * Input.GetAxis("Horizontal") * VITESSE * Time.deltaTime;
+        corps.velocity += transform.forward * Input.GetAxis("Vertical") * VITESSE * Time.deltaTime;
     }
 }
