@@ -3,7 +3,7 @@
  * \brief Script du joueur
  * \author LabyStudio
  * \version 1.0
- * \date {creation: 19/10/2022, modification: 30/11/2022}
+ * \date {creation: 19/10/2022, modification: 10/01/2023}
 */
 
 using System.Collections;
@@ -16,12 +16,15 @@ public class Joueur : MonoBehaviour
     /**
      * \cond
      */
-    public float VITESSE = 7;
-    public float VITESSE_ROTATION = 8;
-    public Camera camera;
+    public float VITESSE;
+    public float VITESSE_ROTATION;
+    int direction = 0;
 
     Rigidbody corps;
     PhotonView view;
+    GameObject coffre;
+    public GameObject self;
+    Coffre script_coffre;
     /**
      * \endcond
      */
@@ -33,7 +36,8 @@ public class Joueur : MonoBehaviour
     {
         corps = GetComponent<Rigidbody>();
         view = GetComponent<PhotonView>();
-        camera.enabled = true;
+        coffre = GameObject.FindGameObjectWithTag("Finish");
+        script_coffre = coffre.GetComponent("Coffre") as Coffre;
     }
 
     /** \brief Fonction **prédéfinie** exécutée une fois par frame permettant de redresser les rotations sur les axes x et z.
@@ -44,7 +48,18 @@ public class Joueur : MonoBehaviour
     {
         if (view.IsMine)
         {
-            transform.rotation = new Quaternion(0, transform.rotation.y, 0, transform.rotation.w);
+            if (script_coffre.arrive)
+            {
+                PhotonNetwork.LoadLevel("VICTOIRE");
+            }
+            transform.position = new Vector3(transform.position.x, 0.1f, transform.position.z);
+            Vector3 heading = coffre.transform.position - transform.position;
+            float dist = Mathf.Sqrt(Mathf.Pow(heading.x, 2) + Mathf.Pow(heading.z, 2));
+            if (dist < 2 && !script_coffre.porte)
+            {
+                script_coffre.cible = self;
+                script_coffre.porte = true;
+            }
         }
     }
 
@@ -55,9 +70,32 @@ public class Joueur : MonoBehaviour
     {
         if (view.IsMine)
         {
-            transform.Rotate(transform.up * Input.GetAxis("Mouse X") * VITESSE_ROTATION * Time.deltaTime);
-            corps.velocity = transform.right * Input.GetAxis("Horizontal") * VITESSE * Time.deltaTime;
-            corps.velocity += transform.forward * Input.GetAxis("Vertical") * VITESSE * Time.deltaTime;
+            if (Input.GetKey("z"))
+            {
+                direction = 180;
+                corps.velocity += new Vector3(0, 0, 1) * VITESSE * Time.deltaTime;
+            }
+            else if (Input.GetKey("s"))
+            {
+                direction = 0;
+                corps.velocity += new Vector3(0, 0, -1) * VITESSE * Time.deltaTime;
+            }
+            else if (Input.GetKey("d"))
+            {
+                direction = 270;
+                corps.velocity += new Vector3(1, 0, 0) * VITESSE * Time.deltaTime;
+            }
+            else if (Input.GetKey("q"))
+            {
+                direction = 90;
+                corps.velocity += new Vector3(-1, 0, 0) * VITESSE * Time.deltaTime;
+            }
+            float angle_cible = direction;
+            if (Mathf.Abs(Mathf.DeltaAngle(transform.eulerAngles.y, angle_cible)) > 0.05f)
+            {
+                float angle = Mathf.MoveTowardsAngle(transform.eulerAngles.y, angle_cible, VITESSE_ROTATION * Time.deltaTime);
+                transform.eulerAngles = Vector3.up * angle;
+            }
         }
     }
 }

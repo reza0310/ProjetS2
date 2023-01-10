@@ -14,6 +14,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Navigation : MonoBehaviourPunCallbacks
 {
@@ -93,5 +94,13 @@ public class Navigation : MonoBehaviourPunCallbacks
     public void Autocreate()
     {
         PhotonNetwork.CreateRoom(RandomString(20));
+    }
+
+    /** \brief Fonction en cas de victoire: fin.
+     * 
+     */
+    public void Win_stop()
+    {
+        SceneManager.LoadScene("Lobby");
     }
 }
