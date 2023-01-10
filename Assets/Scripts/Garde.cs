@@ -22,11 +22,13 @@ public class Garde : MonoBehaviour
     public float VITESSE_ROTATION = 90;
 
     public Light TORCHE;
+    public Color couleur_origine_torche;
+    public Color couleur_fin_torche;
     public float DISTANCE_VUE;
     public LayerMask MASQUE_VUE;
+    public float pourcent;
 
     float angle_vue;
-    Color couleur_origine_torche;
     /**
      * \endcond
      */
@@ -64,6 +66,8 @@ public class Garde : MonoBehaviour
         transform.position = points[0];
         transform.LookAt(points[1]);
 
+        pourcent = 0;
+
         StartCoroutine(SuivreChemin(points));
     }
 
@@ -92,20 +96,27 @@ public class Garde : MonoBehaviour
         return false;
     }
 
-    /** \brief Fonction **prédéfinie** exécutée une fois par frame permettant de checker si on voit le joueur.
+    /** \brief Fonction **prédéfinie** exécutée une fois par intervalle de temps fixe permettant de checker si on voit le joueur.
      * 
      * 
      */
-    public void Update()
+    public void FixedUpdate()
     {
         if (voit_joueur())
         {
-            TORCHE.color = Color.red;
+            pourcent += 1;
+            if (pourcent == 100)
+            {
+                GameObject manager = GameObject.FindGameObjectWithTag("Manager");
+                Message script_msg = manager.GetComponent("Message") as Message;
+                script_msg.lose = true;
+            }
         }
-        else
+        else if (pourcent > 0)
         {
-            TORCHE.color = couleur_origine_torche;
+            pourcent -= 1;
         }
+        TORCHE.color = Color.Lerp(couleur_origine_torche, couleur_fin_torche, pourcent/100f);
     }
 
     /** \brief Fonction exécutée en permanence qui permet de suivre le chemin préchargé.

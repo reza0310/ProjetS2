@@ -22,8 +22,10 @@ public class Joueur : MonoBehaviour
 
     Rigidbody corps;
     PhotonView view;
-    GameObject coffre;
     public GameObject self;
+    GameObject manager;
+    Message script_msg;
+    GameObject coffre;
     Coffre script_coffre;
     /**
      * \endcond
@@ -36,6 +38,8 @@ public class Joueur : MonoBehaviour
     {
         corps = GetComponent<Rigidbody>();
         view = GetComponent<PhotonView>();
+        manager = GameObject.FindGameObjectWithTag("Manager");
+        script_msg = manager.GetComponent("Message") as Message;
         coffre = GameObject.FindGameObjectWithTag("Finish");
         script_coffre = coffre.GetComponent("Coffre") as Coffre;
     }
@@ -48,17 +52,24 @@ public class Joueur : MonoBehaviour
     {
         if (view.IsMine)
         {
-            if (script_coffre.arrive)
+            if (script_msg.win)
             {
                 PhotonNetwork.LoadLevel("VICTOIRE");
             }
-            transform.position = new Vector3(transform.position.x, 0.1f, transform.position.z);
-            Vector3 heading = coffre.transform.position - transform.position;
-            float dist = Mathf.Sqrt(Mathf.Pow(heading.x, 2) + Mathf.Pow(heading.z, 2));
-            if (dist < 2 && !script_coffre.porte)
+            else if (script_msg.lose)
             {
-                script_coffre.cible = self;
-                script_coffre.porte = true;
+                PhotonNetwork.LoadLevel("DEFAITE");
+            }
+            else
+            {
+                transform.position = new Vector3(transform.position.x, 0.1f, transform.position.z);
+                Vector3 heading = coffre.transform.position - transform.position;
+                float dist = Mathf.Sqrt(Mathf.Pow(heading.x, 2) + Mathf.Pow(heading.z, 2));
+                if (dist < 2 && !script_coffre.porte)
+                {
+                    script_coffre.cible = self;
+                    script_coffre.porte = true;
+                }
             }
         }
     }

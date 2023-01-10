@@ -1,9 +1,9 @@
 /**
  * \file Navigation.cs
- * \brief Script pour créer ou rejoindre une salle
+ * \brief Script pour les boutons des menus
  * \author LabyStudio
  * \version 1.0
- * \date {creation: 29/11/2022, modification: 30/11/2022}
+ * \date {creation: 29/11/2022, modification: 10/01/2023}
 */
 
 using System;
@@ -15,6 +15,7 @@ using UnityEngine.UI;
 using Photon.Pun;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.IO;
 
 public class Navigation : MonoBehaviourPunCallbacks
 {
@@ -96,11 +97,44 @@ public class Navigation : MonoBehaviourPunCallbacks
         PhotonNetwork.CreateRoom(RandomString(20));
     }
 
-    /** \brief Fonction en cas de victoire: fin.
+    /** \brief Fonction en cas de victoire.
      * 
      */
-    public void Win_stop()
+    public void Gain()
     {
+        GameObject manager = GameObject.FindGameObjectWithTag("Manager");
+        StreamReader sr = new StreamReader("Assets/difficulty.txt");
+        System.String line = sr.ReadLine();
+        sr.Close();
+        int difficulty = int.Parse(line);
+        MoneyManager script_money = manager.GetComponent("MoneyManager") as MoneyManager;
+        script_money.AddMoney((int)Mathf.Pow(15, difficulty));
+    }
+
+    /** \brief Fonction en cas de reprise.
+        * 
+        */
+    public void Next(bool vic)
+    {
+        if (vic)
+        {
+            Gain();
+        }
+
+        PhotonNetwork.LoadLevel("Projet");
+    }
+
+    /** \brief Fonction en cas de fin.
+     * 
+     */
+    public void Stop(bool vic)
+    {
+        if (vic)
+        {
+            Gain();
+        }
+
+        PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene("Lobby");
     }
 }

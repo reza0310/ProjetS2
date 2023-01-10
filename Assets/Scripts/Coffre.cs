@@ -17,19 +17,21 @@ public class Coffre : MonoBehaviour
      */
     public GameObject cible;
     public bool porte;
-    public bool arrive;
     GameObject Porte;
+    public int offset;
+    GameObject manager;
+    Message script_msg;
     /**
      * \endcond
      */
-    public int offset;
 
-    private void Start()
+    public void Start()
     {
         cible = null;
         porte = false;
-        arrive = false;
         Porte = GameObject.FindGameObjectWithTag("Porte");
+        manager = GameObject.FindGameObjectWithTag("Manager");
+        script_msg = manager.GetComponent("Message") as Message;
     }
 
     // Update is called once per frame
@@ -41,9 +43,9 @@ public class Coffre : MonoBehaviour
         }
         Vector3 heading = Porte.transform.position - transform.position;
         float dist = Mathf.Sqrt(Mathf.Pow(heading.x, 2) + Mathf.Pow(heading.z, 2));
-        if (dist < 5)
+        if (dist < 4)
         {
-            arrive = true;
+            script_msg.win = true;
         }
     }
 }
