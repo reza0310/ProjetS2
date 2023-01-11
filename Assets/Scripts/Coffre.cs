@@ -3,7 +3,7 @@
  * \brief Script pour permettre au coffre de suivre le joueur
  * \author LabyStudio
  * \version 1.0
- * \date {creation: 10/01/2023, modification: 10/01/2023}
+ * \date {creation: 10/01/2023, modification: 11/01/2023}
 */
 
 using System.Collections;
@@ -25,7 +25,7 @@ public class Coffre : MonoBehaviour
      * \endcond
      */
 
-    public void Start()
+    public void Starte()
     {
         cible = null;
         porte = false;

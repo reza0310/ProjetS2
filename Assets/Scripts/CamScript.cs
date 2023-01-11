@@ -3,7 +3,7 @@
  * \brief Script pour permettre à la caméra de suivre le joueur
  * \author LabyStudio
  * \version 1.0
- * \date {creation: 09/01/2023, modification: 10/01/2023}
+ * \date {creation: 09/01/2023, modification: 11/01/2023}
 */
 
 using System.Collections;
@@ -16,15 +16,10 @@ public class CamScript : MonoBehaviour
      * \cond
      */
     public GameObject cible;
+    public int offset;
     /**
      * \endcond
      */
-    public int offset;
-
-    private void Start()
-    {
-        cible = null;
-    }
 
     // Update is called once per frame
     void Update()
