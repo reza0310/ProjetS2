@@ -3,30 +3,36 @@
  * \brief Script du joueur
  * \author LabyStudio
  * \version 1.0
- * \date {creation: 19/10/2022, modification: 10/01/2023}
+ * \date {creation: 19/10/2022, modification: 13/01/2023}
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 using Photon.Pun;
 
-public class Joueur : MonoBehaviour
+public class Joueur : MonoBehaviourPun
 {
     /**
      * \cond
      */
     public float VITESSE;
     public float VITESSE_ROTATION;
-    int direction = 0;
+    public int ARMEMENT;
+    public GameObject self;
 
+    int direction = 0;
     Rigidbody corps;
     PhotonView view;
-    public GameObject self;
     GameObject manager;
     Message script_msg;
     GameObject coffre;
     Coffre script_coffre;
+    bool bouge;
+    Animator anim;
+    double temps;
     /**
      * \endcond
      */
@@ -42,6 +48,14 @@ public class Joueur : MonoBehaviour
         script_msg = manager.GetComponent("Message") as Message;
         coffre = GameObject.FindGameObjectWithTag("Finish");
         script_coffre = coffre.GetComponent("Coffre") as Coffre;
+        bouge = false;
+        anim = GetComponent<Animator>();
+        TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
+        temps = t.TotalSeconds;
+        StreamReader sr = new StreamReader("weapon.txt");
+        String line = sr.ReadLine();
+        sr.Close();
+        ARMEMENT = int.Parse(line);
     }
 
     /** \brief Fonction **prédéfinie** exécutée une fois par frame permettant de redresser les rotations sur les axes x et z.
@@ -62,13 +76,26 @@ public class Joueur : MonoBehaviour
             }
             else
             {
-                transform.position = new Vector3(transform.position.x, 0.1f, transform.position.z);
+                transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
                 Vector3 heading = coffre.transform.position - transform.position;
                 float dist = Mathf.Sqrt(Mathf.Pow(heading.x, 2) + Mathf.Pow(heading.z, 2));
-                if (dist < 2 && !script_coffre.porte)
+                if (dist < 5 && !script_coffre.porte)
                 {
-                    script_coffre.cible = self;
-                    script_coffre.porte = true;
+                    script_coffre.File(PhotonView.Get(this).ViewID);
+                }
+            }
+            if (bouge)
+            {
+                TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
+                if (t.TotalSeconds - temps > 1)
+                {
+                    anim.SetTrigger("Cours");
+                    temps = t.TotalSeconds;
+                }
+                if (corps.velocity.AlmostEquals(new Vector3(0, 0, 0), 40f))
+                {
+                    bouge = false;
+                    anim.SetTrigger("Stop");
                 }
             }
         }
@@ -100,6 +127,13 @@ public class Joueur : MonoBehaviour
             {
                 direction = 90;
                 corps.velocity += new Vector3(-1, 0, 0) * VITESSE * Time.deltaTime;
+            }
+            if (!bouge && !corps.velocity.AlmostEquals(new Vector3(0, 0, 0), 40f))
+            {
+                bouge = true;
+                anim.SetTrigger("Cours");
+                TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
+                temps = t.TotalSeconds;
             }
             float angle_cible = direction;
             if (Mathf.Abs(Mathf.DeltaAngle(transform.eulerAngles.y, angle_cible)) > 0.05f)

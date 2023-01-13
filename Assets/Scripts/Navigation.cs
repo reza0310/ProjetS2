@@ -103,7 +103,7 @@ public class Navigation : MonoBehaviourPunCallbacks
     public void Gain()
     {
         GameObject manager = GameObject.FindGameObjectWithTag("Manager");
-        StreamReader sr = new StreamReader("Assets/difficulty.txt");
+        StreamReader sr = new StreamReader("difficulty.txt");
         System.String line = sr.ReadLine();
         sr.Close();
         int difficulty = int.Parse(line);

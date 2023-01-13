@@ -3,21 +3,22 @@
  * \brief Script des gardes du jeu
  * \author LabyStudio
  * \version 1.0
- * \date {creation: 09/10/2022, modification: 30/11/2022}
+ * \date {creation: 09/10/2022, modification: 13/01/2023}
 */
 
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class Garde : MonoBehaviour
+public class Garde : MonoBehaviourPun
 {
     /**
      * \cond
      */
     public Transform CONTIENT_CHEMIN;
     public GameObject CORPS_GARDE;
-    public float TEMPS_ATTENTE = .3f;
+    public float TEMPS_ATTENTE = .2f;
     public float VITESSE = 10;
     public float VITESSE_ROTATION = 90;
 
@@ -67,8 +68,14 @@ public class Garde : MonoBehaviour
         transform.LookAt(points[1]);
 
         pourcent = 0;
-
-        StartCoroutine(SuivreChemin(points));
+        if (PhotonNetwork.IsMasterClient)
+        {
+            StartCoroutine(SuivreChemin(points));
+        }
+        else
+        {
+            Destroy(CONTIENT_CHEMIN);
+        }
     }
 
     /** \brief Fonction disant si le garde voit le joueur.
@@ -92,6 +99,15 @@ public class Garde : MonoBehaviour
                     }
                 }
             }
+            if (Vector3.Distance(transform.position, joueur.transform.position) < 3)
+            {
+                Joueur script = joueur.GetComponent("Joueur") as Joueur;
+                if (script.ARMEMENT != 1)
+                {
+                    TORCHE.intensity = 0;
+                    Destroy(this);
+                }
+            }
         }
         return false;
     }
@@ -105,18 +121,18 @@ public class Garde : MonoBehaviour
         if (voit_joueur())
         {
             pourcent += 1;
-            if (pourcent == 100)
+            if (pourcent == 50)
             {
                 GameObject manager = GameObject.FindGameObjectWithTag("Manager");
                 Message script_msg = manager.GetComponent("Message") as Message;
-                script_msg.lose = true;
+                script_msg.sendLose();
             }
         }
         else if (pourcent > 0)
         {
             pourcent -= 1;
         }
-        TORCHE.color = Color.Lerp(couleur_origine_torche, couleur_fin_torche, pourcent/100f);
+        TORCHE.color = Color.Lerp(couleur_origine_torche, couleur_fin_torche, pourcent/50f);
     }
 
     /** \brief Fonction exécutée en permanence qui permet de suivre le chemin préchargé.

@@ -3,12 +3,13 @@
  * \brief Script pour permettre au coffre de suivre le joueur
  * \author LabyStudio
  * \version 1.0
- * \date {creation: 10/01/2023, modification: 11/01/2023}
+ * \date {creation: 10/01/2023, modification: 13/01/2023}
 */
 
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class Coffre : MonoBehaviour
 {
@@ -45,7 +46,20 @@ public class Coffre : MonoBehaviour
         float dist = Mathf.Sqrt(Mathf.Pow(heading.x, 2) + Mathf.Pow(heading.z, 2));
         if (dist < 4)
         {
-            script_msg.win = true;
+            script_msg.sendWin();
         }
+    }
+
+    public void File(int id)
+    {
+        PhotonView photonView = PhotonView.Get(this);
+        photonView.RPC("Pecho", RpcTarget.All, id);
+    }
+
+    [PunRPC]
+    void Pecho(int invincible)
+    {
+        cible = PhotonView.Find(invincible).gameObject;
+        porte = true;
     }
 }
