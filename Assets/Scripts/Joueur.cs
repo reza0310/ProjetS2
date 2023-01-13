@@ -23,6 +23,7 @@ public class Joueur : MonoBehaviourPun
     public int ARMEMENT;
     public GameObject self;
 
+    AudioSource audioData;
     int direction = 0;
     Rigidbody corps;
     PhotonView view;
@@ -44,12 +45,15 @@ public class Joueur : MonoBehaviourPun
     {
         corps = GetComponent<Rigidbody>();
         view = GetComponent<PhotonView>();
+        audioData = GetComponent<AudioSource>();
+        anim = GetComponent<Animator>();
+
         manager = GameObject.FindGameObjectWithTag("Manager");
         script_msg = manager.GetComponent("Message") as Message;
         coffre = GameObject.FindGameObjectWithTag("Finish");
         script_coffre = coffre.GetComponent("Coffre") as Coffre;
+
         bouge = false;
-        anim = GetComponent<Animator>();
         TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
         temps = t.TotalSeconds;
         StreamReader sr = new StreamReader("weapon.txt");
@@ -94,6 +98,7 @@ public class Joueur : MonoBehaviourPun
                 }
                 if (corps.velocity.AlmostEquals(new Vector3(0, 0, 0), 40f))
                 {
+                    audioData.Pause();
                     bouge = false;
                     anim.SetTrigger("Stop");
                 }
@@ -131,6 +136,7 @@ public class Joueur : MonoBehaviourPun
             if (!bouge && !corps.velocity.AlmostEquals(new Vector3(0, 0, 0), 40f))
             {
                 bouge = true;
+                audioData.Play();
                 anim.SetTrigger("Cours");
                 TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
                 temps = t.TotalSeconds;
